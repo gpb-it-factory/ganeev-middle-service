@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.gpb.middle_service.backendMock.service.UserService;
+import ru.gpb.middle_service.backendMockClient.BackendMockClient;
 import ru.gpb.middle_service.dto.CreateUserRequestV2;
 import ru.gpb.middle_service.dto.UserResponseV2;
 
@@ -11,9 +12,9 @@ import ru.gpb.middle_service.dto.UserResponseV2;
 @AllArgsConstructor
 @RequestMapping("/v2/users")
 public class UserController {
-    private final UserService userService;
+    private final BackendMockClient backendMockClient;
     @PostMapping
     UserResponseV2 createUser(@RequestBody CreateUserRequestV2 createUserRequest){
-         return userService.createMockUser(createUserRequest);
+         return backendMockClient.createMockUser(createUserRequest);
     };
 }
