@@ -53,7 +53,7 @@ class UserControllerTest {
     }
 
     @Test
-    void SuccessCreateUserTest() throws Exception {
+    void successCreateUserTest() throws Exception {
         CreateUserRequestV2 createUserRequestV2 = new CreateUserRequestV2();
         createUserRequestV2.setUserId(1);
         String json = mapper.writeValueAsString(createUserRequestV2);
@@ -66,7 +66,7 @@ class UserControllerTest {
     }
 
     @Test
-    void FailedCreateUserTest() throws Exception {
+    void failedCreateUserTest() throws Exception {
         CreateUserRequestV2 createUserRequestV2 = new CreateUserRequestV2();
         createUserRequestV2.setUserId(2);
         String json = mapper.writeValueAsString(createUserRequestV2);
