@@ -1,4 +1,4 @@
-package ru.gpb.middle_service.dto;
+package ru.gpb.middle_service.dto.users;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -3,11 +3,10 @@ package ru.gpb.middle_service.repository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import ru.gpb.middle_service.backendMock.UserRepository;
+
+import ru.gpb.middle_service.backendMock.repository.UserRepository;
 import ru.gpb.middle_service.backendMock.entity.UserMock;
 
-import javax.print.attribute.HashPrintServiceAttributeSet;
 import java.util.Optional;
 
 public class UserRepositoryTest {

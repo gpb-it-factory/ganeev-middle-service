@@ -6,14 +6,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import ru.gpb.middle_service.backendMock.UserRepository;
+import ru.gpb.middle_service.backendMock.repository.UserRepository;
 import ru.gpb.middle_service.backendMock.entity.UserMock;
-import ru.gpb.middle_service.dto.CreateUserRequestV2;
+import ru.gpb.middle_service.dto.users.CreateUserRequestV2;
 
 import java.util.Optional;
 
@@ -23,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest {
+public class UserCreationTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -31,7 +29,8 @@ public class UserControllerTest {
     ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
+        userRepository.clear();
         userRepository.save(new UserMock("111-222-333",2,"user2"));
     }
 
@@ -43,7 +42,7 @@ public class UserControllerTest {
         mockMvc.perform(post("/v2/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsBytes(createUserRequestV2)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userId").exists());
         Optional<UserMock> userMock = userRepository.findByTelegramId(1);
         Assertions.assertTrue(userMock.isPresent());
@@ -74,7 +73,7 @@ public class UserControllerTest {
         mockMvc.perform(post("/v2/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsBytes(createUserRequestV2)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userId").exists());
         mockMvc.perform(post("/v2/users")
                         .contentType(MediaType.APPLICATION_JSON)

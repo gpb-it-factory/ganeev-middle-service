@@ -1,4 +1,4 @@
-package ru.gpb.middle_service.backendMock;
+package ru.gpb.middle_service.backendMock.repository;
 
 import org.springframework.stereotype.Repository;
 import ru.gpb.middle_service.backendMock.entity.UserMock;
@@ -30,5 +30,8 @@ public class UserRepository {
                 .filter(user-> userName.equals(user.getUserName()))
                 .findAny();
     };
+    public void clear(){
+        users.clear();
+    }
 
 }
