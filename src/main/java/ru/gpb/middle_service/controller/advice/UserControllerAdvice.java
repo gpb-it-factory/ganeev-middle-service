@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.gpb.middle_service.backendMock.UtilsService;
 
 import ru.gpb.middle_service.backendMock.exception.AccountAlreadyExistException;
+
+import ru.gpb.middle_service.backendMock.exception.AccountNotFoundException;
+
 import ru.gpb.middle_service.backendMock.exception.UserAlreadyExistsException;
 import ru.gpb.middle_service.backendMock.exception.UserNotFoundException;
 
@@ -39,6 +42,16 @@ public class UserControllerAdvice {
                 .message("Аккаунт уже существует")
                 .type("AccountAlreadyExist")
                 .code("409")
+                .traceId(UtilsService.generateUUID())
+                .build());
+    };
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    ResponseEntity<ErrorV2> accountNotFoundExceptionHandler(){
+        return ResponseEntity.status(404).body(ErrorV2.builder()
+                .message("Счет не найден")
+                .type("AccountNotFound")
+                .code("404")
                 .traceId(UtilsService.generateUUID())
                 .build());
     };

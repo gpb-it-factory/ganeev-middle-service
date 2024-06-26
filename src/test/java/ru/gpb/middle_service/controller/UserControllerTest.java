@@ -13,6 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import ru.gpb.middle_service.backendMock.exception.AccountAlreadyExistException;
+
+import ru.gpb.middle_service.backendMock.exception.AccountNotFoundException;
+
 import ru.gpb.middle_service.backendMock.exception.UserAlreadyExistsException;
 import ru.gpb.middle_service.backendMock.exception.UserNotFoundException;
 import ru.gpb.middle_service.backendMockClient.BackendMockClient;
@@ -29,6 +32,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -148,5 +152,42 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.amount").value(5000d));
         verify(backendMockClient,times(1)).createUserAccount(anyLong(),Mockito.any(CreateAccountRequestV2.class));
     }
+
+
+    @Test
+    void successGetUserAccountTest() throws Exception {
+        Mockito.when(backendMockClient.getUserAccount(1))
+                .thenAnswer(invocation -> new AccountsListResponseV2("cead892c-f9f6-40b6-991d-8fa4fe5eb0c0","123456",5000));
+        mvc.perform(get("/v2/users/1/accounts"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountId").value("cead892c-f9f6-40b6-991d-8fa4fe5eb0c0"))
+                .andExpect(jsonPath("$.accountName").value("123456"))
+                .andExpect(jsonPath("$.amount").value(5000d));
+        verify(backendMockClient,times(1)).getUserAccount(anyLong());
+    }
+
+    @Test
+    void failedGetNotExistUserAccountTest() throws Exception {
+        Mockito.when(backendMockClient.getUserAccount(1))
+                .thenThrow(new UserNotFoundException());
+        mvc.perform(get("/v2/users/1/accounts"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Пользователь не найден"))
+                .andExpect(jsonPath("$.type").value("UserNotFound"))
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.traceId").exists());
+    }
+    @Test
+    void failedGetUserNotExistAccountTest() throws Exception {
+        Mockito.when(backendMockClient.getUserAccount(1))
+                .thenThrow(AccountNotFoundException.class);
+        mvc.perform(get("/v2/users/1/accounts"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Счет не найден"))
+                .andExpect(jsonPath("$.type").value("AccountNotFound"))
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.traceId").exists());
+    }
+
 
 }

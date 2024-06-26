@@ -1,5 +1,8 @@
 package ru.gpb.middle_service.service;
 
+
+import org.apache.catalina.User;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +20,9 @@ import ru.gpb.middle_service.backendMock.UtilsService;
 import ru.gpb.middle_service.backendMock.entity.AccountMock;
 import ru.gpb.middle_service.backendMock.entity.UserMock;
 import ru.gpb.middle_service.backendMock.exception.AccountAlreadyExistException;
+
+import ru.gpb.middle_service.backendMock.exception.AccountNotFoundException;
+
 import ru.gpb.middle_service.backendMock.exception.UserNotFoundException;
 import ru.gpb.middle_service.backendMock.repository.AccountRepository;
 import ru.gpb.middle_service.backendMock.service.AccountService;
@@ -85,4 +91,31 @@ public class AccountServiceTest {
         Assertions.assertNotNull(response.getAccountId());
         Assertions.assertEquals(5000d,response.getAmount());
     }
+
+    @Test
+    void successGetUserAccountTest(){
+        Mockito.when(userService.findByTelegramId(Mockito.anyLong()))
+                .thenReturn(Optional.of(new UserMock("111",1,"user1")));
+        Mockito.when(accountRepository.findByUserId(Mockito.anyString())).thenReturn(Optional.of(new AccountMock("111",5000d,"account1")));
+        AccountsListResponseV2 result = accountService.getUserAccount(1);
+        Assertions.assertEquals("111",result.getAccountId());
+        Assertions.assertEquals(5000d,result.getAmount());
+        Assertions.assertEquals("account1",result.getAccountName());
+    }
+
+    @Test
+    void failedGetNotExistUserAccountTest(){
+        Mockito.when(userService.findByTelegramId(Mockito.anyLong()))
+                .thenReturn(Optional.empty());
+        Assertions.assertThrows(UserNotFoundException.class,()->accountService.getUserAccount(1));
+    }
+
+    @Test
+    void failedGetUserNotExistAccountTest(){
+        Mockito.when(userService.findByTelegramId(Mockito.anyLong()))
+                .thenReturn(Optional.of(new UserMock("111",1,"user1")));
+        Mockito.when(accountRepository.findByUserId(Mockito.anyString())).thenReturn(Optional.empty());
+        Assertions.assertThrows(AccountNotFoundException.class,()->accountService.getUserAccount(1));
+    }
+
 }
