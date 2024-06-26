@@ -1,8 +1,6 @@
 package ru.gpb.middle_service.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.catalina.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,17 +14,17 @@ import ru.gpb.middle_service.backendMock.entity.UserMock;
 import ru.gpb.middle_service.backendMock.repository.AccountRepository;
 import ru.gpb.middle_service.backendMock.repository.UserRepository;
 import ru.gpb.middle_service.dto.accounts.CreateAccountRequestV2;
-import ru.gpb.middle_service.dto.users.CreateUserRequestV2;
 
 import java.util.Optional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AccountCreationTest {
+public class AccountActionTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -88,4 +86,30 @@ public class AccountCreationTest {
                 .andExpect(jsonPath("$.traceId").exists());
     }
 
+    @Test
+    void getExistAccountTest() throws Exception {
+        mockMvc.perform(get("/v2/users/1/accounts"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountId").exists())
+                .andExpect(jsonPath("$.accountName").value("account1"))
+                .andExpect(jsonPath("$.amount").value(5000d));
+    }
+    @Test
+    void getNotExistAccountTest() throws Exception {
+        mockMvc.perform(get("/v2/users/2/accounts"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Счет не найден"))
+                .andExpect(jsonPath("$.type").value("AccountNotFound"))
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.traceId").exists());
+    }
+    @Test
+    void getAccountForNotExistUserTest() throws Exception {
+        mockMvc.perform(get("/v2/users/3/accounts"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Пользователь не найден"))
+                .andExpect(jsonPath("$.type").value("UserNotFound"))
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.traceId").exists());
+    }
 }

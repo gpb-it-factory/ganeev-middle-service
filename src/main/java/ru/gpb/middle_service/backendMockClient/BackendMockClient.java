@@ -25,4 +25,9 @@ public class BackendMockClient {
         return accountService.createUserAccount(userId,request);
     }
 
+
+    public AccountsListResponseV2 getUserAccount(long userId){
+        return accountService.getUserAccount(userId);
+    }
+
 }

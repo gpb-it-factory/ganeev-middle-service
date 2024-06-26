@@ -30,4 +30,10 @@ public class UserController {
     }
 
 
+    @GetMapping("/{id}/accounts")
+    ResponseEntity<AccountsListResponseV2> getAccount(@PathVariable("id") long id){
+        return ResponseEntity.ok(backendMockClient.getUserAccount(id));
+    }
+
+
 }
