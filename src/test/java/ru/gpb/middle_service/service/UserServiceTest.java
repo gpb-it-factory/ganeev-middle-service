@@ -1,6 +1,5 @@
 package ru.gpb.middle_service.service;
 
-import org.apache.catalina.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,12 +10,15 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.gpb.middle_service.backendMock.UserRepository;
+import ru.gpb.middle_service.backendMock.repository.UserRepository;
+
 import ru.gpb.middle_service.backendMock.UtilsService;
 import ru.gpb.middle_service.backendMock.entity.UserMock;
 import ru.gpb.middle_service.backendMock.exception.UserAlreadyExistsException;
 import ru.gpb.middle_service.backendMock.service.UserService;
-import ru.gpb.middle_service.dto.CreateUserRequestV2;
+
+import ru.gpb.middle_service.dto.users.CreateUserRequestV2;
+
 
 import java.util.Optional;
 
@@ -41,7 +43,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void failedCreateMockUser(){
+    void failedCreateMockUserTest(){
         CreateUserRequestV2 createUserRequestV2  = new CreateUserRequestV2();
         createUserRequestV2.setUserId(1);
         Mockito.when(userRepository.findByTelegramId(1))
@@ -54,7 +56,7 @@ public class UserServiceTest {
         });
     }
     @Test
-    void successCreateMockUser(){
+    void successCreateMockUserTest(){
         CreateUserRequestV2 createUserRequestV2  = new CreateUserRequestV2();
         createUserRequestV2.setUserId(1);
         Mockito.when(userRepository.findByTelegramId(1))
