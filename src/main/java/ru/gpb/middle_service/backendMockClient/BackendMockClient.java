@@ -25,9 +25,11 @@ public class BackendMockClient {
         return accountService.createUserAccount(userId,request);
     }
 
-
     public AccountsListResponseV2 getUserAccount(long userId){
         return accountService.getUserAccount(userId);
     }
 
+    public String transferMoney(String userNameFrom,String userNameTo,double amount){
+        return accountService.transferMoney(userNameFrom,userNameTo,amount);
+    }
 }

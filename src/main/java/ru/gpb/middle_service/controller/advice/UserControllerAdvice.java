@@ -6,12 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.gpb.middle_service.backendMock.UtilsService;
 
-import ru.gpb.middle_service.backendMock.exception.AccountAlreadyExistException;
-
-import ru.gpb.middle_service.backendMock.exception.AccountNotFoundException;
-
-import ru.gpb.middle_service.backendMock.exception.UserAlreadyExistsException;
-import ru.gpb.middle_service.backendMock.exception.UserNotFoundException;
+import ru.gpb.middle_service.backendMock.exception.*;
 
 import ru.gpb.middle_service.dto.ErrorV2;
 
@@ -52,6 +47,16 @@ public class UserControllerAdvice {
                 .message("Счет не найден")
                 .type("AccountNotFound")
                 .code("404")
+                .traceId(UtilsService.generateUUID())
+                .build());
+    };
+
+    @ExceptionHandler(LowBalanceException.class)
+    ResponseEntity<ErrorV2> lowBalanceExceptionHandler(){
+        return ResponseEntity.status(409).body(ErrorV2.builder()
+                .message("Недостаточно средств на счете")
+                .type("LowBalance")
+                .code("409")
                 .traceId(UtilsService.generateUUID())
                 .build());
     };

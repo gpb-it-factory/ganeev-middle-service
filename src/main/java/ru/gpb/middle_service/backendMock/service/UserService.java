@@ -20,7 +20,9 @@ public class UserService {
     public UserResponseV2 createMockUser(CreateUserRequestV2 userRequest) {
 
         findByTelegramId(userRequest.getUserId()).ifPresent(userMock -> {
-
+            throw new UserAlreadyExistsException();
+        });
+        findByUserName(userRequest.getUserName()).ifPresent(userMock -> {
             throw new UserAlreadyExistsException();
         });
         UserMock userMock = new UserMock(UtilsService.generateUUID(),
@@ -32,5 +34,9 @@ public class UserService {
 
     public Optional<UserMock> findByTelegramId(long telegramId){
         return userRepository.findByTelegramId(telegramId);
+    }
+
+    public Optional<UserMock> findByUserName(String userName){
+        return userRepository.findByUserName(userName);
     }
 }

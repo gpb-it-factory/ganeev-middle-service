@@ -9,11 +9,13 @@ import ru.gpb.middle_service.backendMock.exception.AccountAlreadyExistException;
 
 import ru.gpb.middle_service.backendMock.exception.AccountNotFoundException;
 
+import ru.gpb.middle_service.backendMock.exception.LowBalanceException;
 import ru.gpb.middle_service.backendMock.exception.UserNotFoundException;
 import ru.gpb.middle_service.backendMock.repository.AccountRepository;
 import ru.gpb.middle_service.dto.accounts.AccountsListResponseV2;
 import ru.gpb.middle_service.dto.accounts.CreateAccountRequestV2;
 
+import java.beans.Transient;
 import java.util.Optional;
 
 @Service
@@ -40,5 +42,23 @@ public class AccountService {
         String userUUID = user.getId();
         AccountMock account = accountRepository.findByUserId(userUUID).orElseThrow(AccountNotFoundException::new);
         return new AccountsListResponseV2(account);
+    }
+
+    /*
+    * Над этим методом должна быть аннотация transactional,
+    * чтобы при ошибке или отключении сервиса где-то в середине обработки
+    * не менялось исходное состояние системы
+    * */
+    public String transferMoney(String userNameFrom,String userNameTo,double amount){
+        UserMock userFrom = userService.findByUserName(userNameFrom).orElseThrow(UserNotFoundException::new);
+        AccountMock accountFrom = accountRepository.findByUserId(userFrom.getId()).orElseThrow(AccountNotFoundException::new);
+        if(accountFrom.getAmount()<amount){
+            throw new LowBalanceException();
+        }
+        UserMock userTo = userService.findByUserName(userNameTo).orElseThrow(UserNotFoundException::new);
+        AccountMock accountTo = accountRepository.findByUserId(userTo.getId()).orElseThrow(AccountNotFoundException::new);
+        accountFrom.setAmount(accountFrom.getAmount()-amount);
+        accountTo.setAmount(accountTo.getAmount()+amount);
+        return "success";
     }
 }

@@ -14,6 +14,7 @@ import ru.gpb.middle_service.backendMock.entity.UserMock;
 import ru.gpb.middle_service.backendMock.repository.AccountRepository;
 import ru.gpb.middle_service.backendMock.repository.UserRepository;
 import ru.gpb.middle_service.dto.accounts.CreateAccountRequestV2;
+import ru.gpb.middle_service.dto.accounts.CreateTransferRequestV2;
 
 import java.util.Optional;
 
@@ -112,4 +113,60 @@ public class AccountActionTest {
                 .andExpect(jsonPath("$.code").value("404"))
                 .andExpect(jsonPath("$.traceId").exists());
     }
+
+
+
+    @Test
+    void TransferNotExistUserTest() throws Exception {
+        CreateTransferRequestV2 createTransferRequestV2 = new CreateTransferRequestV2("user1","user3",500);
+        mockMvc.perform(post("/v2/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsBytes(createTransferRequestV2)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Пользователь не найден"))
+                .andExpect(jsonPath("$.type").value("UserNotFound"))
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.traceId").exists());
+    }
+
+    @Test
+    void TransferNotExistAccountTest() throws Exception {
+        CreateTransferRequestV2 createTransferRequestV2 = new CreateTransferRequestV2("user1","user2",500);
+        mockMvc.perform(post("/v2/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsBytes(createTransferRequestV2)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Счет не найден"))
+                .andExpect(jsonPath("$.type").value("AccountNotFound"))
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.traceId").exists());
+    }
+
+    @Test
+    void TransferFromLowBalanceAccountTest() throws Exception {
+        CreateTransferRequestV2 createTransferRequestV2 = new CreateTransferRequestV2("user1","user2",50000);
+        mockMvc.perform(post("/v2/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsBytes(createTransferRequestV2)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Недостаточно средств на счете"))
+                .andExpect(jsonPath("$.type").value("LowBalance"))
+                .andExpect(jsonPath("$.code").value("409"))
+                .andExpect(jsonPath("$.traceId").exists());
+    }
+
+    @Test
+    void successTransferTest() throws Exception {
+        accountRepository.save("222",new AccountMock("222",5000,"account2"));
+        CreateTransferRequestV2 createTransferRequestV2 = new CreateTransferRequestV2("user1","user2",500);
+        mockMvc.perform(post("/v2/transfers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsBytes(createTransferRequestV2)))
+                .andExpect(status().isOk());
+        AccountMock accountFrom = accountRepository.findByUserId("111").get();
+        Assertions.assertEquals(4500,accountFrom.getAmount());
+        AccountMock accountTo = accountRepository.findByUserId("222").get();
+        Assertions.assertEquals(5500,accountTo.getAmount());
+    }
+
 }
